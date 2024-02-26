@@ -3,9 +3,9 @@ Final project for discipline Developing in Golang
 
 ## Members:
     * Temirgali Rustem 22B030451 
-    * Suleimenov Ayan 22B03 
+    * Suleimenov Ayan 22B030590
     * Bagythzhan Zhalgas 22B030317
-    * Tulepbergen Nursultan 22B03
+    * Tolegen Nursultan 22B030453
 
 ## Description of project:
 Football Teams Management System
@@ -44,7 +44,7 @@ This project aims to streamline the management of football teams, allowing tourn
         GET /matches: Get a list of all matches, add a new match.
         GET /teams: Getting a list of all teams, adding a new team.
         GET /players: Getting a list of all players, adding a new player.
-        GET /stands: Getting the tourn  ament results table.
+        GET /stands: Getting the tournament results table.
         GET /schedule: Getting the schedule of matches.
 
     * POST:
