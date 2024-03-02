@@ -15,8 +15,13 @@ type Match struct {
 }
 
 func main() {
+<<<<<<< HEAD:cmd/main.go
 	// Connect to the database
 	db, err := sql.Open("postgres", "postgres://postgres:ayan2004@localhost/Go-24?sslmode=disable")
+=======
+	// Establish a connection to the PostgreSQL database
+	db, err := sql.Open("postgres", "postgres://username:password@localhost/dbname?sslmode=disable")
+>>>>>>> 086a62f4289f3dba004a98603a4f110cc29d89dc:main.go
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +37,12 @@ func main() {
 	var teams []string
 	for rows.Next() {
 		var teamName string
+<<<<<<< HEAD:cmd/main.go
 		if err := rows.Scan(&teamName); err != nil {
+=======
+		err := rows.Scan(&teamName)
+		if err != nil {
+>>>>>>> 086a62f4289f3dba004a98603a4f110cc29d89dc:main.go
 			panic(err)
 		}
 		teams = append(teams, teamName)
@@ -47,11 +57,23 @@ func main() {
 	})
 
 	var winners []string
+<<<<<<< HEAD:cmd/main.go
 	var drawers []Match // Save matches that ended in a draw
 
 	for len(teams) > 1 {
 		var nextRound []string
 
+=======
+	var drawers []Match
+	comments := []string{"Round of 16", "Quarterfinal", "Halffinal", "Final"}
+	cnt := 0
+
+	for len(teams) > 1 {
+		var nextRound []string
+		var matches []Match
+
+		fmt.Println(comments[cnt])
+>>>>>>> 086a62f4289f3dba004a98603a4f110cc29d89dc:main.go
 		for i := 0; i < len(teams); i += 2 {
 			match := Match{Team1: teams[i], Team2: teams[i+1]}
 			match.Score1 = rand.Intn(5)
@@ -90,9 +112,16 @@ func main() {
 
 		teams = nextRound
 		drawers = nil
+<<<<<<< HEAD:cmd/main.go
 		fmt.Println("Next Round:")
 	}
 
+=======
+		cnt++
+	}
+
+	// Print the winner
+>>>>>>> 086a62f4289f3dba004a98603a4f110cc29d89dc:main.go
 	fmt.Println("Winner:")
 	fmt.Println(teams[0])
 }

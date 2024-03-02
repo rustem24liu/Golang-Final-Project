@@ -3,7 +3,7 @@ Final project for discipline Developing in Golang
 
 ## Members:
     * Temirgali Rustem 22B030451 
-    * Suleimenov Ayan 22B030590
+    * Suleimenov Ayan 22B030590 - Team Leader
     * Bagythzhan Zhalgas 22B030317
     * Tolegen Nursultan 22B030453
 
