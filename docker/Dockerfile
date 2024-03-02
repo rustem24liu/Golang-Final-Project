@@ -17,4 +17,4 @@ FROM alpine AS runner
 COPY --from=builder /usr/local/src/bin/app /
 COPY configs/config.yaml /config.yaml
 
-CMD["/app"]
+#CMD["/app"]

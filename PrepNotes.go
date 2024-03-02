@@ -4,4 +4,3 @@
 
 
 // Docker-Code ubuntuu
-FROM
