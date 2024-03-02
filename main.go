@@ -50,7 +50,6 @@ func main() {
 			matches = append(matches, match)
 		}
 
-		// Handle matches that ended in a draw
 		for _, drawMatch := range drawers {
 			for {
 				drawMatch.Score1 = rand.Intn(5)
@@ -70,9 +69,8 @@ func main() {
 			}
 		}
 
-		// Prepare for the next round
 		teams = nextRound
-		drawers = nil // Reset drawers for the next round
+		drawers = nil
 		cnt++
 	}
 
