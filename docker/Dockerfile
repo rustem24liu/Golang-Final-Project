@@ -1,20 +1,24 @@
-FROM golang:1.20-alpine AS builder
+FROM golang:1.19
 
-WORKDIR /usr/local/src
 
-RUN apk --no-cache add bash git make gcc gettext must-dev
+RUN apt-get update && apt-get install -y wget
 
-# dependencies
-COPY ["app/go.mod", "app/go.sum", "./"]
+# Install dockerize
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+WORKDIR /Golang-Final-Project
+
+COPY . .
+
 RUN go mod download
 
-#build
-COPY app ./
-RUN go build -o ./bin/app cmd/app/main.go
 
-FROM alpine AS runner
+RUN go build -o ./finalproject/cmd/main ./cmd
 
-COPY --from=builder /usr/local/src/bin/app /
-COPY configs/config.yaml /config.yaml
+EXPOSE 8080
 
-CMD["/app"]
+
+CMD ["dockerize", "-wait", "tcp://postgres:5432", "-timeout", "60s", "./finalproject/cmd/main"]

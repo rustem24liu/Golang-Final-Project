@@ -5,7 +5,8 @@ import (
     "fmt"
     "math/rand"
     "time"
-	_ "github.com/lib/pq"
+
+    _ "github.com/lib/pq"
 )
 
 type Match struct {
@@ -17,14 +18,14 @@ type Match struct {
 
 func main() {
     // Establish a connection to the PostgreSQL database
-    db, err := sql.Open("postgres", "postgres://postgres:ayan2004@localhost/Go-24?sslmode=disable")
+    db, err := sql.Open("postgres", "postgres://username:password@localhost/dbname?sslmode=disable")
     if err != nil {
         panic(err)
     }
     defer db.Close()
 
     // Fetch team names from the database
-    rows, err := db.Query("SELECT team_name FROM Teams")
+    rows, err := db.Query("SELECT team_name FROM teams")
     if err != nil {
         panic(err)
     }
