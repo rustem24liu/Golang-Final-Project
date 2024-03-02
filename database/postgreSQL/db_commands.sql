@@ -198,6 +198,128 @@ VALUES
     ('Memphis', 'Depay', 28, 60000000, 'Forward', 8),  -- Memphis Depay for FC Barcelona
     ('Antoine', 'Griezmann', 30, 80000000, 'Forward', 8);  -- Antoine Griezmann for FC Barcelona
 
+    --  Tottenham #9
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Hugo', 'Lloris', 35, 20000000, 'Goalkeeper', 9),
+    ('Sergio', 'Reguilón', 25, 35000000, 'Defender', 9),
+    ('Eric', 'Dier', 28, 25000000, 'Defender', 9),
+    ('Toby', 'Alderweireld', 32, 30000000, 'Defender', 9),
+    ('Matt', 'Doherty', 30, 20000000, 'Defender', 9),
+    ('Pierre-Emile', 'Højbjerg', 26, 45000000, 'Midfielder', 9),
+    ('Giovani', 'Lo Celso', 26, 40000000, 'Midfielder', 9),
+    ('Tanguy', 'Ndombele', 25, 50000000, 'Midfielder', 9),
+    ('Steven', 'Bergwijn', 24, 35000000, 'Forward', 9),
+    ('Harry', 'Kane', 28, 100000000, 'Forward', 9),
+    ('Heung-Min', 'Son', 29, 80000000, 'Forward', 9);
+
+--  Chelsea #10
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Edouard', 'Mendy', 29, 25000000, 'Goalkeeper', 10),
+    ('Reece', 'James', 22, 50000000, 'Defender', 10),
+    ('Thiago', 'Silva', 37, 10000000, 'Defender', 10),
+    ('Antonio', 'Rüdiger', 28, 40000000, 'Defender', 10),
+    ('Ben', 'Chilwell', 24, 60000000, 'Defender', 10),
+    ('NGolo', 'Kanté', 30, 80000000, 'Midfielder', 10),
+    ('Jorginho', NULL, 30, 50000000, 'Midfielder', 10),
+    ('Mason', 'Mount', 23, 70000000, 'Midfielder', 10),
+    ('Christian', 'Pulisic', 23, 60000000, 'Forward', 10),
+    ('Timo', 'Werner', 25, 80000000, 'Forward', 10),
+    ('Kai', 'Havertz', 22, 80000000, 'Forward', 10);
+
+-- Borussia Dortmund #11
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Roman', 'Bürki', 31, 15000000, 'Goalkeeper', 11),
+    ('Mats', 'Hummels', 33, 20000000, 'Defender', 11),
+    ('Manuel', 'Akanji', 26, 30000000, 'Defender', 11),
+    ('Raphael', 'Guerreiro', 28, 35000000, 'Defender', 11),
+    ('Thomas', 'Meunier', 30, 25000000, 'Defender', 11),
+    ('Jude', 'Bellingham', 18, 60000000, 'Midfielder', 11),
+    ('Axel', 'Witsel', 33, 15000000, 'Midfielder', 11),
+    ('Giovanni', 'Reyna', 19, 40000000, 'Midfielder', 11),
+    ('Marco', 'Reus', 32, 30000000, 'Forward', 11),
+    ('Erling', 'Haaland', 21, 100000000, 'Forward', 11),
+    ('Jadon', 'Sancho', 22, 80000000, 'Forward', 11);
+
+    -- PSG #12
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Keylor', 'Navas', 35, 15000000, 'Goalkeeper', 12),
+    ('Marquinhos', NULL, 27, 60000000, 'Defender', 12),
+    ('Presnel', 'Kimpembe', 26, 40000000, 'Defender', 12),
+    ('Achraf', 'Hakimi', 23, 60000000, 'Defender', 12),
+    ('Layvin', 'Kurzawa', 29, 20000000, 'Defender', 12),
+    ('Georginio', 'Wijnaldum', 31, 60000000, 'Midfielder', 12),
+    ('Marco', 'Verratti', 29, 80000000, 'Midfielder', 12),
+    ('Idrissa', 'Gueye', 32, 30000000, 'Midfielder', 12),
+    ('Neymar', NULL, 30, 120000000, 'Forward', 12),
+    ('Kylian', 'Mbappé', 23, 150000000, 'Forward', 12),
+    ('Lionel', 'Messi', 34, 150000000, 'Forward', 12);
+
+    -- Juventus #13
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Wojciech', 'Szczęsny', 31, 20000000, 'Goalkeeper', 13),
+    ('Giorgio', 'Chiellini', 37, 10000000, 'Defender', 13),
+    ('Leonardo', 'Bonucci', 34, 15000000, 'Defender', 13),
+    ('Matthijs', 'de Ligt', 22, 75000000, 'Defender', 13),
+    ('Danilo', NULL, 30, 25000000, 'Defender', 13),
+    ('Weston', 'McKennie', 23, 40000000, 'Midfielder', 13),
+    ('Rodrigo', 'Bentancur', 24, 50000000, 'Midfielder', 13),
+    ('Arthur', NULL, 25, 60000000, 'Midfielder', 13),
+    ('Federico', 'Chiesa', 24, 80000000, 'Forward', 13),
+    ('Paulo', 'Dybala', 28, 90000000, 'Forward', 13),
+    ('Alvaro', 'Morata', 29, 60000000, 'Forward', 13);
+
+    -- AC Milan #14
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Gianluigi', 'Donnarumma', 23, 60000000, 'Goalkeeper', 14),
+    ('Theo', 'Hernández', 24, 70000000, 'Defender', 14),
+    ('Fikayo', 'Tomori', 24, 35000000, 'Defender', 14),
+    ('Simon', 'Kjær', 32, 10000000, 'Defender', 14),
+    ('Davide', 'Calabria', 25, 25000000, 'Defender', 14),
+    ('Franck', 'Kessié', 25, 50000000, 'Midfielder', 14),
+    ('Sandro', 'Tonali', 22, 40000000, 'Midfielder', 14),
+    ('Ismaël', 'Bennacer', 24, 50000000, 'Midfielder', 14),
+    ('Ante', 'Rebić', 28, 60000000, 'Forward', 14),
+    ('Zlatan', 'Ibrahimović', 40, 5000000, 'Forward', 14),
+    ('Rafael', 'Leão', 23, 70000000, 'Forward', 14);
+
+    -- Manchester United #15
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('David', 'De Gea', 31, 35000000, 'Goalkeeper', 15),
+    ('Harry', 'Maguire', 29, 80000000, 'Defender', 15),
+    ('Luke', 'Shaw', 26, 50000000, 'Defender', 15),
+    ('Aaron', 'Wan-Bissaka', 24, 60000000, 'Defender', 15),
+    ('Raphaël', 'Varane', 28, 70000000, 'Defender', 15),
+    ('Paul', 'Pogba', 29, 90000000, 'Midfielder', 15),
+    ('Bruno', 'Fernandes', 27, 80000000, 'Midfielder', 15),
+    ('Scott', 'McTominay', 25, 40000000, 'Midfielder', 15),
+    ('Marcus', 'Rashford', 24, 100000000, 'Forward', 15),
+    ('Jadon', 'Sancho', 22, 90000000, 'Forward', 15),
+    ('Cristiano', 'Ronaldo', 37, 25000000, 'Forward', 15);
+
+    -- Arsenal #16
+INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id)
+VALUES
+    ('Bernd', 'Leno', 30, 30000000, 'Goalkeeper', 16),
+    ('Kieran', 'Tierney', 24, 50000000, 'Defender', 16),
+    ('Gabriel', 'Magalhães', 24, 45000000, 'Defender', 16),
+    ('Ben', 'White', 24, 50000000, 'Defender', 16),
+    ('Héctor', 'Bellerín', 26, 35000000, 'Defender', 16),
+    ('Thomas', 'Partey', 28, 60000000, 'Midfielder', 16),
+    ('Granit', 'Xhaka', 29, 40000000, 'Midfielder', 16),
+    ('Emile', 'Smith Rowe', 21, 60000000, 'Midfielder', 16),
+    ('Bukayo', 'Saka', 20, 80000000, 'Forward', 16),
+    ('Pierre-Emerick', 'Aubameyang', 33, 50000000, 'Forward', 16),
+    ('Alexandre', 'Lacazette', 30, 40000000, 'Forward', 16);
+
+
+
 
 
 
