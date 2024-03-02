@@ -1,9 +1,11 @@
 package main
 
 import (
+    "database/sql"
     "fmt"
     "math/rand"
     "time"
+	_ "github.com/lib/pq"
 )
 
 type Match struct {
@@ -14,8 +16,34 @@ type Match struct {
 }
 
 func main() {
-    teams := []string{"Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10", "Team 11", "Team 12", "Team 13", "Team 14", "Team 15", "Team 16"}
+    // Establish a connection to the PostgreSQL database
+    db, err := sql.Open("postgres", "postgres://postgres:ayan2004@localhost/Go-24?sslmode=disable")
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
 
+    // Fetch team names from the database
+    rows, err := db.Query("SELECT team_name FROM Teams")
+    if err != nil {
+        panic(err)
+    }
+    defer rows.Close()
+
+    var teams []string
+    for rows.Next() {
+        var teamName string
+        err := rows.Scan(&teamName)
+        if err != nil {
+            panic(err)
+        }
+        teams = append(teams, teamName)
+    }
+    if err := rows.Err(); err != nil {
+        panic(err)
+    }
+
+    // Shuffle the teams
     rand.Seed(time.Now().UnixNano())
     rand.Shuffle(len(teams), func(i, j int) {
         teams[i], teams[j] = teams[j], teams[i]
