@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-
-	_ "github.com/lib/pq"
 )
 
 type Match struct {
@@ -17,6 +15,7 @@ type Match struct {
 }
 
 func main() {
+	// Establish a connection to the PostgreSQL database
 	db, err := sql.Open("postgres", "postgres://username:password@localhost/dbname?sslmode=disable")
 	if err != nil {
 		panic(err)
@@ -33,7 +32,8 @@ func main() {
 	var teams []string
 	for rows.Next() {
 		var teamName string
-		if err := rows.Scan(&teamName); err != nil {
+		err := rows.Scan(&teamName)
+		if err != nil {
 			panic(err)
 		}
 		teams = append(teams, teamName)
@@ -48,50 +48,21 @@ func main() {
 	})
 
 	var winners []string
-	var drawers []Match // Save matches that ended in a draw
+	var drawers []Match
+	comments := []string{"Round of 16", "Quarterfinal", "Halffinal", "Final"}
+	cnt := 0
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-		for _, drawMatch := range drawers {
-			for {
-				drawMatch.Score1 = rand.Intn(5)
-				drawMatch.Score2 = rand.Intn(5)
-				fmt.Printf("%s %d - %d %s\n", drawMatch.Team1, drawMatch.Score1, drawMatch.Score2, drawMatch.Team2)
-=======
-    // Simulate rounds until there's only one team left
-    for len(teams) > 1 {
-        var nextRound []string
-        var matches []Match
->>>>>>> fca792782f4c7e1b1d32bae918a8e34a8344b5f9
-=======
 	for len(teams) > 1 {
 		var nextRound []string
->>>>>>> 638440529321f0baba2361864384b9af88dbf9cd
+		var matches []Match
 
+		fmt.Println(comments[cnt])
 		for i := 0; i < len(teams); i += 2 {
 			match := Match{Team1: teams[i], Team2: teams[i+1]}
 			match.Score1 = rand.Intn(5)
 			match.Score2 = rand.Intn(5)
 			fmt.Printf("%s %d - %d %s\n", match.Team1, match.Score1, match.Score2, match.Team2)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-		teams = nextRound
-		drawers = nil
-		cnt++
-	}
-=======
-            if match.Score1 == match.Score2 {
-                drawers = append(drawers, match)
-            } else if match.Score1 > match.Score2 {
-                winners = append(winners, match.Team1)
-                nextRound = append(nextRound, match.Team1)
-            } else {
-                winners = append(winners, match.Team2)
-                nextRound = append(nextRound, match.Team2)
-            }
->>>>>>> fca792782f4c7e1b1d32bae918a8e34a8344b5f9
-=======
 			if match.Score1 == match.Score2 {
 				drawers = append(drawers, match)
 			} else if match.Score1 > match.Score2 {
@@ -101,9 +72,11 @@ func main() {
 				winners = append(winners, match.Team2)
 				nextRound = append(nextRound, match.Team2)
 			}
-		}
->>>>>>> 638440529321f0baba2361864384b9af88dbf9cd
 
+			matches = append(matches, match)
+		}
+
+		// Handle matches that ended in a draw
 		for _, drawMatch := range drawers {
 			for {
 				drawMatch.Score1 = rand.Intn(5)
@@ -123,12 +96,13 @@ func main() {
 			}
 		}
 
+		// Prepare for the next round
 		teams = nextRound
 		drawers = nil
-		fmt.Println("Next Round:")
+		cnt++
 	}
 
+	// Print the winner
 	fmt.Println("Winner:")
 	fmt.Println(teams[0])
-}
 }
