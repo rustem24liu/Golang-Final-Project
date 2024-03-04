@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"math/rand"
-	"time"
 	//"time"
 )
 
@@ -21,7 +19,11 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "dishes"
+	dbname   = "football_team"
+)
+
+var (
+	team_name string
 )
 
 func main() {
@@ -37,13 +39,25 @@ func main() {
 	defer db.Close()
 
 	// Fetch team names from the database
-	rows, err := db.Query("SELECT product FROM items")
+	rows, err := db.Query("SELECT team_name FROM teams")
 	if err != nil {
 		panic(err)
-		fmt.Println("BAD")
-	} else {
-		fmt.Println("GooD")
 	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&team_name)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("\n", team_name)
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
 	defer rows.Close()
 
 	var teams []string
