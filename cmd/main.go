@@ -3,8 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"math/rand"
 	"time"
+	//"time"
 )
 
 type Match struct {
@@ -14,9 +16,20 @@ type Match struct {
 	Score2 int
 }
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "dishes"
+)
+
 func main() {
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
 	// Connect to the database
-	db, err := sql.Open("postgres", "postgres://postgres:ayan2004@localhost/Go-24?sslmode=disable")
+	db, err := sql.Open("postgres", psqlInfo)
 	// Establish a connection to the PostgreSQL database
 	if err != nil {
 		panic(err)
@@ -24,9 +37,12 @@ func main() {
 	defer db.Close()
 
 	// Fetch team names from the database
-	rows, err := db.Query("SELECT team_name FROM teams")
+	rows, err := db.Query("SELECT product FROM items")
 	if err != nil {
 		panic(err)
+		fmt.Println("BAD")
+	} else {
+		fmt.Println("GooD")
 	}
 	defer rows.Close()
 
@@ -54,12 +70,12 @@ func main() {
 			})
 
 			var winners []string
-			var drawers []Match // Save matches that ended in a draw
+			//var drawers []Match // Save matches that ended in a draw
 
 			// Simulate rounds until there's only one team left
 			for len(teams) > 1 {
-				var nextRound []string
-				var matches []Match
+				//var nextRound []string
+				//var matches []Match
 
 				// Generate matches for the current round
 
