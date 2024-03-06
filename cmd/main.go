@@ -2,42 +2,37 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	_ "fmt"
 	_ "github.com/lib/pq"
-	"github.com/rustem24liu/Golang-Final-Project/database"
-	"github.com/rustem24liu/Golang-Final-Project/internal/repository"
-	"github.com/rustem24liu/Golang-Final-Project/internal/tournament"
-	_ "github.com/rustem24liu/Golang-Final-Project/internal/tournament"
+	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
 	"log"
 	"net/http"
 )
 
 func main() {
-	tournament.RunTournament()
-	fmt.Println("Tournament finished")
+	//tournament.RunTournament()
+	//fmt.Println("Tournament finished")
+	//
+	//rows, err := database.GetTeamNames()
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Println(rows)
 
-	rows, err := database.GetTeamNames()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(rows)
-
-	db, err := sql.Open("postgres", "postgres://<username>:<password>@localhost/football_team?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	// Initialize player handler
-	playerHandler := .NewPlayerHandler(db)
+	playerHandler := handlers.NewPlayerHandler(db)
 
-	// Register HTTP routes
 	http.HandleFunc("/players", playerHandler.GetAllPlayers)
 	http.HandleFunc("/players/:id", playerHandler.GetPlayerByID)
-	http.HandleFunc("/players", playerHandler.CreatePlayer)
-	http.HandleFunc("/players/:id", playerHandler.UpdatePlayer)
-	http.HandleFunc("/players/:id", playerHandler.DeletePlayer)
+	http.HandleFunc("/players/create", playerHandler.CreatePlayer)
+	http.HandleFunc("/players/update/:id", playerHandler.UpdatePlayer)
+	http.HandleFunc("/players/delete/:id", playerHandler.DeletePlayer)
 
 	// Start HTTP server
 	log.Println("Server is running on port 8080...")
