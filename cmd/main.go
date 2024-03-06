@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	_ "fmt"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
 	"log"
@@ -10,14 +10,7 @@ import (
 )
 
 func main() {
-	//tournament.RunTournament()
-	//fmt.Println("Tournament finished")
-	//
-	//rows, err := database.GetTeamNames()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Println(rows)
+	router := mux.NewRouter()
 
 	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
 	if err != nil {
@@ -28,13 +21,13 @@ func main() {
 	// Initialize player handler
 	playerHandler := handlers.NewPlayerHandler(db)
 
-	http.HandleFunc("/players", playerHandler.GetAllPlayers)
-	http.HandleFunc("/players/:id", playerHandler.GetPlayerByID)
-	http.HandleFunc("/players/create", playerHandler.CreatePlayer)
-	http.HandleFunc("/players/update/:id", playerHandler.UpdatePlayer)
-	http.HandleFunc("/players/delete/:id", playerHandler.DeletePlayer)
+	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
+	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
+	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
+	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
+	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 
 	// Start HTTP server
 	log.Println("Server is running on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

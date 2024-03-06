@@ -5,11 +5,14 @@ import (
 	_ "database/sql"
 	"encoding/json"
 	_ "encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/rustem24liu/Golang-Final-Project/internal/repository"
 	_ "github.com/rustem24liu/Golang-Final-Project/internal/repository"
 	_ "log"
 	"net/http"
 	_ "net/http"
+	"strconv"
 )
 
 type PlayerHandler struct {
@@ -33,9 +36,29 @@ func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ph *PlayerHandler) GetPlayerByID(w http.ResponseWriter, r *http.Request) {
-	// Extract player ID from request parameters
-	// Retrieve player by ID from the repository
-	// Encode player to JSON and write response
+	playerID := mux.Vars(r)["id"]
+
+	fmt.Println(playerID)
+
+	id, err := strconv.Atoi(playerID)
+	if err != nil {
+		fmt.Println(playerID, "smth bad")
+		http.Error(w, "Invalid player ID", http.StatusBadRequest)
+		return
+	}
+
+	player, err := ph.playerRepo.GetPlayerById(id)
+	if err != nil {
+		if err.Error() == "player not found" {
+			http.Error(w, "Player not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return player details in JSON format
+	json.NewEncoder(w).Encode(player)
 }
 
 func (ph *PlayerHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
