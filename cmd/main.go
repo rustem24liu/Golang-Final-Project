@@ -23,7 +23,7 @@ func main() {
 
 	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
 	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
-	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
+	router.HandleFunc("/players/create", playerHandler.CreatePlayer).Methods("POST")
 	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
 	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 
