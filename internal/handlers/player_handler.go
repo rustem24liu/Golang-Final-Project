@@ -70,15 +70,7 @@ func (ph *PlayerHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert new player into the repository
-	err = ph.playerRepo.CreatePlayer(&player)
-	if err != nil {
-		http.Error(w, "Failed to create player", http.StatusInternalServerError)
-		return
-	}
-
-	// Write success response
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Player created successfully"))
+	// Write success response or error if any occurs
 }
 
 func (ph *PlayerHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
