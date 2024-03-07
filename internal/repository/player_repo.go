@@ -55,16 +55,23 @@ func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
 }
 
 func (r *PlayerRepo) CreatePlayer(player *models.Player) error {
-	_, err := r.db.Exec("INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6)", player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
+	fmt.Println("Debugging: Inserting Player into database")
+	fmt.Printf("Debugging: Player data - %+v\n", player)
+
+	_, err := r.db.Exec("INSERT INTO Player (player_id, first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6, $7)", player.ID, player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
 	if err != nil {
-		fmt.Println("error")
+		fmt.Println("Error inserting player into database:", err)
+		return err
 	}
+
+	fmt.Println("Debugging: Player inserted successfully")
 	return nil
 }
-func (r *PlayerRepo) UpdatePlayer(player models.Player) error {
+
+func (r *PlayerRepo) UpdatePlayer(player *models.Player) error {
 	_, err := r.db.Exec("UPDATE Player SET first_name = $1, last_name = $2, player_age = $3, player_cost = $4, player_pos = $5, team_id = $6 WHERE player_id = $7", player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID, player.ID)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	return nil
 }
