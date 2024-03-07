@@ -24,6 +24,7 @@ func main() {
 	tournament.RunTournament()
 	playerHandler := handlers.NewPlayerHandler(db)
 
+	//router.HandleFunc('/')
 	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
 	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
 	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
