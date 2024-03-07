@@ -10,22 +10,26 @@ import (
 )
 
 type Match struct {
-	Team1  string
-	Team2  string
-	Score1 int
-	Score2 int
+	Team1  string `json:"team1"`
+	Team2  string `json:"team2"`
+	Score1 int    `json:"score1"`
+	Score2 int    `json:"score2"`
+}
+
+type TournamentResult struct {
+	Winner  string  `json:"winner"`
+	Matches []Match `json:"matches"`
 }
 
 const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "1000tenge"
+	password = "postgres"
 	dbname   = "football_team"
 )
 
-func RunTournament() {
-
+func RunTournament() TournamentResult {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 	db, err := sql.Open("postgres", psqlInfo)
@@ -59,22 +63,20 @@ func RunTournament() {
 		teams[i], teams[j] = teams[j], teams[i]
 	})
 
-	comments := []string{"Round of 8:", "Quarterfinal:", "Semifinal:", "Final:"}
+	var tournamentResult TournamentResult
 	var winners []string
 	var drawers []Match
 	cnt := 0
 
+	var matches []Match
+
 	for len(teams) > 1 {
 		var nextRound []string
-		var matches []Match
-
-		fmt.Println(comments[cnt])
 
 		for i := 0; i < len(teams); i += 2 {
 			match := Match{Team1: teams[i], Team2: teams[i+1]}
 			match.Score1 = rand.Intn(5)
 			match.Score2 = rand.Intn(5)
-			fmt.Printf("%s %d - %d %s\n", match.Team1, match.Score1, match.Score2, match.Team2)
 
 			// Determine winners and next round participants
 			if match.Score1 == match.Score2 {
@@ -87,14 +89,12 @@ func RunTournament() {
 				nextRound = append(nextRound, match.Team2)
 			}
 
-			matches = append(matches, match)
+			matches = append(matches, match) // Append match to matches slice
 		}
 		for _, drawMatch := range drawers {
 			for {
 				drawMatch.Score1 = rand.Intn(5)
 				drawMatch.Score2 = rand.Intn(5)
-				fmt.Println("\nReturn match:")
-				fmt.Printf("%s %d - %d %s\n", drawMatch.Team1, drawMatch.Score1, drawMatch.Score2, drawMatch.Team2)
 
 				if drawMatch.Score1 != drawMatch.Score2 {
 					if drawMatch.Score1 > drawMatch.Score2 {
@@ -111,10 +111,10 @@ func RunTournament() {
 		teams = nextRound
 		drawers = nil
 		cnt++
-		fmt.Println()
 	}
 
-	fmt.Println()
-	fmt.Println("Winner:")
-	fmt.Println(teams[0])
+	tournamentResult.Winner = teams[0]
+	tournamentResult.Matches = matches
+
+	return tournamentResult
 }
