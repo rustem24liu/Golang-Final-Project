@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	_ "database/sql"
+	"errors"
+	"fmt"
 	"github.com/rustem24liu/Golang-Final-Project/models"
 	_ "github.com/rustem24liu/Golang-Final-Project/models"
 )
@@ -37,21 +39,25 @@ func (r *PlayerRepo) GetAllPlayers() ([]models.Player, error) {
 	return players, nil
 }
 
-func (r *PlayerRepo) GetPlayerById(id int) (*models.Player, error) {
+func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
 	var player models.Player
 
-	err := r.db.QueryRow("SELECT * FROM Player WHERE player_id = $1", id).Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+	err := r.db.QueryRow("SELECT * FROM Player WHERE player_id = $1", id).
+		Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
 
 	if err != nil {
-		panic(err)
+		if err == sql.ErrNoRows {
+			return nil, errors.New("player not found")
+		}
+		return nil, err
 	}
 	return &player, nil
 }
 
-func (r *PlayerRepo) CreatePlayer(player models.Player) error {
-	_, err := r.db.Exec("INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6", player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
+func (r *PlayerRepo) CreatePlayer(player *models.Player) error {
+	_, err := r.db.Exec("INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6)", player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
 	if err != nil {
-		panic(err)
+		fmt.Println("error")
 	}
 	return nil
 }
