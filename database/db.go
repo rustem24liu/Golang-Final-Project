@@ -5,6 +5,7 @@ import (
 	_ "database/sql"
 	"fmt"
 	_ "fmt"
+
 	_ "github.com/lib/pq"
 )
 
@@ -12,7 +13,7 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "postgres"
+	password = "1000tenge"
 	dbname   = "football_team"
 )
 
