@@ -16,9 +16,15 @@ type Match struct {
 	Score2 int    `json:"score2"`
 }
 
-type TournamentResult struct {
-	Winner  string  `json:"winner"`
+type Round struct {
+	Number  string  `json:"round_number"`
+	Drawers []Match `json:"drawer"`
 	Matches []Match `json:"matches"`
+}
+
+type TournamentResult struct {
+	Winner string  `json:"winner"`
+	Rounds []Round `json:"rounds"`
 }
 
 const (
@@ -29,19 +35,19 @@ const (
 	dbname   = "football_team"
 )
 
-func RunTournament() TournamentResult {
+func RunTournament() (TournamentResult, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		return TournamentResult{}, err
 	}
 	defer db.Close()
 
 	// Fetch team names from the database
 	rows, err := db.Query("SELECT team_name FROM teams")
 	if err != nil {
-		panic(err)
+		return TournamentResult{}, err
 	}
 	defer rows.Close()
 
@@ -49,13 +55,13 @@ func RunTournament() TournamentResult {
 	for rows.Next() {
 		var teamName string
 		if err := rows.Scan(&teamName); err != nil {
-			panic(err)
+			return TournamentResult{}, err
 		}
 		teams = append(teams, teamName)
 	}
 
 	if err := rows.Err(); err != nil {
-		panic(err)
+		return TournamentResult{}, err
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -64,14 +70,16 @@ func RunTournament() TournamentResult {
 	})
 
 	var tournamentResult TournamentResult
+	comments := []string{"Round of 8", "Quarter final", "Semi final", "Final"}
 	var winners []string
 	var drawers []Match
-	cnt := 0
+	var drawersResult []Match
 
-	var matches []Match
+	var rounds []Round
 
 	for len(teams) > 1 {
 		var nextRound []string
+		var matches []Match
 
 		for i := 0; i < len(teams); i += 2 {
 			match := Match{Team1: teams[i], Team2: teams[i+1]}
@@ -104,17 +112,24 @@ func RunTournament() TournamentResult {
 						winners = append(winners, drawMatch.Team2)
 						nextRound = append(nextRound, drawMatch.Team2)
 					}
+					drawersResult = append(drawersResult, drawMatch)
 					break
 				}
 			}
 		}
 		teams = nextRound
 		drawers = nil
-		cnt++
+
+		round := Round{
+			Number:  comments[len(rounds)],
+			Drawers: drawersResult,
+			Matches: matches,
+		}
+		rounds = append(rounds, round)
 	}
 
 	tournamentResult.Winner = teams[0]
-	tournamentResult.Matches = matches
+	tournamentResult.Rounds = rounds
 
-	return tournamentResult
+	return tournamentResult, nil
 }

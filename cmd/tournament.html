@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tournament Results</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #bbbbbb, #a79a9a, #867781, #66585f); /* Gradient from light pink to pink to magenta to red */
+        }
+    </style>
+</head>
+<body>
+    <h1>Tournament Results</h1>
+    <table border="1">
+        <tr>
+            <th>Rounds</th>
+            <th>Matches</th>
+            <th>Return matches</th>
+        </tr>
+        {{ range $index, $round := .Rounds }}
+        <tr>
+            <td>{{ $round.Number }}</td>
+            <td>
+                <ul>
+                    {{ range $match := $round.Matches }}
+                    <li>{{ $match.Team1 }} vs {{ $match.Team2 }}: {{ $match.Score1 }} - {{ $match.Score2 }}</li>
+                    {{ end }}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    
+                    {{ range $drawMatch := $round.Drawers }}
+                    <li>{{ $drawMatch.Team1 }} vs {{ $drawMatch.Team2 }}: {{ $drawMatch.Score1 }} - {{ $drawMatch.Score2 }}</li>
+                    {{ end }}
+                </ul>
+            </td>
+        </tr>
+        {{ end }}
+    </table>
+    <h2>Winner: {{ .Winner }}</h2>
+</body>
+</html>

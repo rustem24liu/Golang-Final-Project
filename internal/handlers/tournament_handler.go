@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/rustem24liu/Golang-Final-Project/internal/tournament"
@@ -9,18 +9,21 @@ import (
 
 func TournamentHandler(w http.ResponseWriter, r *http.Request) {
 	// Run the tournament
-	result := tournament.RunTournament()
-
-	// Convert the result to JSON
-	jsonResult, err := json.Marshal(result)
+	result, err := tournament.RunTournament()
 	if err != nil {
-		http.Error(w, "Failed to marshal tournament result", http.StatusInternalServerError)
+		http.Error(w, "Failed to generate tournament results", http.StatusInternalServerError)
 		return
 	}
 
-	// Set the content type header
-	w.Header().Set("Content-Type", "application/json")
+	tmpl, err := template.ParseFiles("cmd/tournament.html")
+	if err != nil {
+		http.Error(w, "Failed to load HTML template", http.StatusInternalServerError)
+		return
+	}
 
-	// Write the JSON response
-	w.Write(jsonResult)
+	err = tmpl.Execute(w, result)
+	if err != nil {
+		http.Error(w, "Failed to render HTML", http.StatusInternalServerError)
+		return
+	}
 }
