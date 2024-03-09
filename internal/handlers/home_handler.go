@@ -7,7 +7,7 @@ import (
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// Serve the HTML file
-	tmpl, err := template.ParseFiles("cmd/index.html")
+	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

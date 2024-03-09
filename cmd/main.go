@@ -13,13 +13,14 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	db, err := sql.Open("postgres", "postgres://postgres:1000tenge@localhost/football_team?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	playerHandler := handlers.NewPlayerHandler(db)
+	teamHandler := handlers.NewTeamHandler(db)
 
 	//router.HandleFunc('/')
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
@@ -29,6 +30,7 @@ func main() {
 	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
 	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 	router.HandleFunc("/tournament", handlers.TournamentHandler).Methods("GET")
+	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
 	// Start HTTP server
 	log.Println("Server is running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", router))
