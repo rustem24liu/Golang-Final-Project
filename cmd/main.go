@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
+	_ "encoding/json"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
+	"github.com/rustem24liu/Golang-Final-Project/internal/repository"
 )
 
 func main() {
@@ -38,10 +41,10 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		// Encode response
 		json.NewEncoder(w).Encode(players)
-	}).Methods("GET")
+	}
+	).Methods("GET")
 
 	//router.HandleFunc('/')
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
