@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	_ "encoding/json"
 	"fmt"
+	"html/template"
 	_ "log"
 	"net/http"
 	_ "net/http"
@@ -26,8 +27,68 @@ func NewPlayerHandler(db *sql.DB) *PlayerHandler {
 	}
 }
 
+func (ph *PlayerHandler) ListOfPlayerHandler(w http.ResponseWriter, r *http.Request) {
+	// Serve the HTML file
+	tmpl, err := template.ParseFiles("cmd/list_of_players.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
+}
+
 func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
 	players, err := ph.playerRepo.GetAllPlayers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(players)
+}
+
+func (ph *PlayerHandler) SortById(w http.ResponseWriter, r *http.Request) {
+	players, err := ph.playerRepo.GetAllPlayers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(players)
+}
+
+func (ph *PlayerHandler) SortByFirstname(w http.ResponseWriter, r *http.Request) {
+	players, err := ph.playerRepo.SortByFirstname()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(players)
+}
+
+func (ph *PlayerHandler) SortByLastname(w http.ResponseWriter, r *http.Request) {
+	players, err := ph.playerRepo.SortByLastname()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(players)
+}
+
+func (ph *PlayerHandler) SortByAge(w http.ResponseWriter, r *http.Request) {
+	players, err := ph.playerRepo.SortByAge()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(players)
+}
+
+func (ph *PlayerHandler) SortByCost(w http.ResponseWriter, r *http.Request) {
+	players, err := ph.playerRepo.SortByCost()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

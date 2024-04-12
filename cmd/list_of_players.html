@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football management system</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to right, #bbbbbb, #a79a9a, #867781, #66585f);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        .box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .box a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .box a:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to our Football Management System!</h1>
+        <div class="box">
+            <a href="http://localhost:8080/players/sort_by_id">List of players by <span>ID</span></a>
+            <a href="http://localhost:8080/players/sort_by_firstname">List of players by <span>firstname</span></a>
+            <a href="http://localhost:8080/players/sort_by_lastname">List of players by <span>lastname</span></a>
+            <a href="http://localhost:8080/players/sort_by_age">List of players by <span>age</span></a>
+            <a href="http://localhost:8080/players/sort_by_cost">List of players by <span>cost</span></a>
+        </div>
+    </div>
+</body>
+</html>

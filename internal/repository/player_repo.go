@@ -40,6 +40,94 @@ func (r *PlayerRepo) GetAllPlayers() ([]models.Player, error) {
 	return players, nil
 }
 
+func (r *PlayerRepo) SortByFirstname() ([]models.Player, error) {
+	rows, err := r.db.Query("SELECT * FROM Player ORDER BY first_name ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return players, nil
+}
+
+func (r *PlayerRepo) SortByLastname() ([]models.Player, error) {
+	rows, err := r.db.Query("SELECT * FROM Player ORDER BY last_name ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return players, nil
+}
+
+func (r *PlayerRepo) SortByAge() ([]models.Player, error) {
+	rows, err := r.db.Query("SELECT * FROM Player ORDER BY player_age ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return players, nil
+}
+
+func (r *PlayerRepo) SortByCost() ([]models.Player, error) {
+	rows, err := r.db.Query("SELECT * FROM Player ORDER BY player_cost ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return players, nil
+}
+
 func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
 	var player models.Player
 
