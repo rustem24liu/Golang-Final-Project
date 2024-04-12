@@ -37,16 +37,6 @@ func (ph *PlayerHandler) ListOfPlayerHandler(w http.ResponseWriter, r *http.Requ
 	tmpl.Execute(w, nil)
 }
 
-func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.GetAllPlayers()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(players)
-}
-
 func (ph *PlayerHandler) SortById(w http.ResponseWriter, r *http.Request) {
 	players, err := ph.playerRepo.GetAllPlayers()
 	if err != nil {
