@@ -13,30 +13,43 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:0510@localhost/football_team?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
+	playerRepo := repository.NewPlayerRepo(db)
 	playerHandler := handlers.NewPlayerHandler(db)
-	teamHandler := handlers.NewTeamHandler(db)
+
+	router.HandleFunc("/players", func(w http.ResponseWriter, r *http.Request) {
+		pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
+		sortBy := r.URL.Query().Get("sort")
+		positionFilter := r.URL.Query().Get("position") // Example filtering parameter
+
+		filters := make(map[string]interface{})
+		if positionFilter != "" {
+			filters["player_pos"] = positionFilter
+		}
+
+		players, err := playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Encode response
+		json.NewEncoder(w).Encode(players)
+	}).Methods("GET")
 
 	//router.HandleFunc('/')
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
-	router.HandleFunc("/players", playerHandler.ListOfPlayerHandler).Methods("GET")
-	router.HandleFunc("/players/sort_by_id", playerHandler.SortById).Methods("GET")
-	router.HandleFunc("/players/sort_by_firstname", playerHandler.SortByFirstname).Methods("GET")
-	router.HandleFunc("/players/sort_by_lastname", playerHandler.SortByLastname).Methods("GET")
-	router.HandleFunc("/players/sort_by_age", playerHandler.SortByAge).Methods("GET")
-	router.HandleFunc("/players/sort_by_cost", playerHandler.SortByCost).Methods("GET")
-	router.HandleFunc("/players", playerHandler.ListOfPlayerHandler).Methods("GET")
 	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
 	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
 	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
 	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 	router.HandleFunc("/tournament", handlers.TournamentHandler).Methods("GET")
-	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
 	// Start HTTP server
 	log.Println("Server is running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", router))

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	_ "encoding/json"
 	"fmt"
-	"html/template"
 	_ "log"
 	"net/http"
 	_ "net/http"
@@ -27,64 +26,29 @@ func NewPlayerHandler(db *sql.DB) *PlayerHandler {
 	}
 }
 
-func (ph *PlayerHandler) ListOfPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	// Serve the HTML file
-	tmpl, err := template.ParseFiles("cmd/list_of_players.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tmpl.Execute(w, nil)
-}
+func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
+    // Parse query parameters for pagination, sorting, and filtering
+    pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
+    pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
+    sortBy := r.URL.Query().Get("sort")
+    // Example filtering parameter, you can add more as needed
+    positionFilter := r.URL.Query().Get("position")
 
-func (ph *PlayerHandler) SortById(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.GetAllPlayers()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    // Construct filter map
+    filters := make(map[string]interface{})
+    if positionFilter != "" {
+        filters["player_pos"] = positionFilter
+    }
 
-	json.NewEncoder(w).Encode(players)
-}
+    // Retrieve players from repository
+    players, err := ph.playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-func (ph *PlayerHandler) SortByFirstname(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.SortByFirstname()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(players)
-}
-
-func (ph *PlayerHandler) SortByLastname(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.SortByLastname()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(players)
-}
-
-func (ph *PlayerHandler) SortByAge(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.SortByAge()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(players)
-}
-
-func (ph *PlayerHandler) SortByCost(w http.ResponseWriter, r *http.Request) {
-	players, err := ph.playerRepo.SortByCost()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(players)
+    // Encode response
+    json.NewEncoder(w).Encode(players)
 }
 
 func (ph *PlayerHandler) GetPlayerByID(w http.ResponseWriter, r *http.Request) {

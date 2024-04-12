@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	_ "database/sql"
-	"errors"
 	"fmt"
+	"errors"
 
 	"github.com/rustem24liu/Golang-Final-Project/models"
 	_ "github.com/rustem24liu/Golang-Final-Project/models"
@@ -18,114 +18,61 @@ func NewPlayerRepo(db *sql.DB) *PlayerRepo {
 	return &PlayerRepo{db}
 }
 
-func (r *PlayerRepo) GetAllPlayers() ([]models.Player, error) {
-	rows, err := r.db.Query("SELECT * FROM Player")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Player, error) {
+    // Build SQL query based on sorting, filtering, and pagination parameters
+    query := "SELECT * FROM Player"
 
-	var players []models.Player
-	for rows.Next() {
-		var player models.Player
-		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-		if err != nil {
-			return nil, err
-		}
-		players = append(players, player)
-	}
-	if err := rows.Err(); err != nil {
-		panic(err)
-	}
-	return players, nil
-}
+    // Apply filtering if filters are provided
+    if len(filters) > 0 {
+        query += " WHERE "
+        i := 0
+        for key, value := range filters {
+			 // Type assertion to get the underlying value
+			 v, ok := value.(string)
+			 if !ok {
+				 // Handle the error if the assertion fails
+				 // For example, log an error or return an error response
+				 fmt.Printf("Error: Filter value for key %s is not a string\n", key)
+				 continue
+			 }
+			 // Use the value (v) as needed
+			 fmt.Printf("Key: %s, Value: %s\n", key, v)
+            if i > 0 {
+                query += " AND "
+            }
+            query += fmt.Sprintf("%s = $%d", key, i+1)
+            i++
+        }
+    }
 
-func (r *PlayerRepo) SortByFirstname() ([]models.Player, error) {
-	rows, err := r.db.Query("SELECT * FROM Player ORDER BY first_name ASC")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+    // Apply sorting
+    if sortBy != "" {
+        query += fmt.Sprintf(" ORDER BY %s", sortBy)
+    }
 
-	var players []models.Player
-	for rows.Next() {
-		var player models.Player
-		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-		if err != nil {
-			return nil, err
-		}
-		players = append(players, player)
-	}
-	if err := rows.Err(); err != nil {
-		panic(err)
-	}
-	return players, nil
-}
+    // Apply pagination
+    query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, (pageNum-1)*pageSize)
 
-func (r *PlayerRepo) SortByLastname() ([]models.Player, error) {
-	rows, err := r.db.Query("SELECT * FROM Player ORDER BY last_name ASC")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+    // Execute the query
+    rows, err := r.db.Query(query, filters)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
 
-	var players []models.Player
-	for rows.Next() {
-		var player models.Player
-		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-		if err != nil {
-			return nil, err
-		}
-		players = append(players, player)
-	}
-	if err := rows.Err(); err != nil {
-		panic(err)
-	}
-	return players, nil
-}
-
-func (r *PlayerRepo) SortByAge() ([]models.Player, error) {
-	rows, err := r.db.Query("SELECT * FROM Player ORDER BY player_age ASC")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var players []models.Player
-	for rows.Next() {
-		var player models.Player
-		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-		if err != nil {
-			return nil, err
-		}
-		players = append(players, player)
-	}
-	if err := rows.Err(); err != nil {
-		panic(err)
-	}
-	return players, nil
-}
-
-func (r *PlayerRepo) SortByCost() ([]models.Player, error) {
-	rows, err := r.db.Query("SELECT * FROM Player ORDER BY player_cost ASC")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var players []models.Player
-	for rows.Next() {
-		var player models.Player
-		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-		if err != nil {
-			return nil, err
-		}
-		players = append(players, player)
-	}
-	if err := rows.Err(); err != nil {
-		panic(err)
-	}
-	return players, nil
+    var players []models.Player
+    for rows.Next() {
+        var player models.Player
+        err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+        if err != nil {
+            return nil, err
+        }
+        players = append(players, player)
+    }
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+    return players, nil
 }
 
 func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
@@ -142,6 +89,7 @@ func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
 	}
 	return &player, nil
 }
+
 
 func (r *PlayerRepo) CreatePlayer(player *models.Player) error {
 	fmt.Println("Debugging: Inserting Player into database")
