@@ -27,28 +27,30 @@ func NewPlayerHandler(db *sql.DB) *PlayerHandler {
 }
 
 func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
-    // Parse query parameters for pagination, sorting, and filtering
-    pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
-    pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
-    sortBy := r.URL.Query().Get("sort")
-    // Example filtering parameter, you can add more as needed
-    positionFilter := r.URL.Query().Get("position")
+	// Parse query parameters for pagination, sorting, and filtering
+	pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
+	sortBy := r.URL.Query().Get("sort")
+	// Example filtering parameter, you can add more as needed
+	positionFilter := r.URL.Query().Get("player_pos")
+	fmt.Println(positionFilter, "this is position filter")
 
-    // Construct filter map
-    filters := make(map[string]interface{})
-    if positionFilter != "" {
-        filters["player_pos"] = positionFilter
-    }
+	// Construct filter map
+	filters := make(map[string]interface{})
+	if positionFilter != "" {
+		filters["player_pos"] = positionFilter
+	}
 
-    // Retrieve players from repository
-    players, err := ph.playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	// Retrieve players from repository
+	players, err := ph.playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("Error retrieving players:", err)
+		return
+	}
 
-    // Encode response
-    json.NewEncoder(w).Encode(players)
+	// Encode response
+	json.NewEncoder(w).Encode(players)
 }
 
 func (ph *PlayerHandler) GetPlayerByID(w http.ResponseWriter, r *http.Request) {

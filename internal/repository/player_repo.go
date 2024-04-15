@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	_ "database/sql"
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/rustem24liu/Golang-Final-Project/models"
 	_ "github.com/rustem24liu/Golang-Final-Project/models"
@@ -19,60 +19,68 @@ func NewPlayerRepo(db *sql.DB) *PlayerRepo {
 }
 
 func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Player, error) {
-    // Build SQL query based on sorting, filtering, and pagination parameters
-    query := "SELECT * FROM Player"
+	// Build SQL query based on sorting, filtering, and pagination parameters
+	query := "SELECT * FROM Player"
 
-    // Apply filtering if filters are provided
-    if len(filters) > 0 {
-        query += " WHERE "
-        i := 0
-        for key, value := range filters {
-			 // Type assertion to get the underlying value
-			 v, ok := value.(string)
-			 if !ok {
-				 // Handle the error if the assertion fails
-				 // For example, log an error or return an error response
-				 fmt.Printf("Error: Filter value for key %s is not a string\n", key)
-				 continue
-			 }
-			 // Use the value (v) as needed
-			 fmt.Printf("Key: %s, Value: %s\n", key, v)
-            if i > 0 {
-                query += " AND "
-            }
-            query += fmt.Sprintf("%s = $%d", key, i+1)
-            i++
-        }
-    }
+	// Initialize slice to hold values for SQL query parameters
+	var args []interface{}
 
-    // Apply sorting
-    if sortBy != "" {
-        query += fmt.Sprintf(" ORDER BY %s", sortBy)
-    }
+	// Apply filtering if filters are provided
+	if len(filters) > 0 {
+		query += " WHERE "
+		i := 1
+		for key, value := range filters {
+			// Type assertion to get the underlying value
+			v, ok := value.(string)
+			if !ok {
+				// Handle the error if the assertion fails
+				// For example, log an error or return an error response
+				fmt.Printf("Error: Filter value for key %s is not a string\n", key)
+				continue
+			}
+			// Use the value (v) as needed
+			fmt.Printf("Applying filter: Key: %s, Value: %s\n", key, v)
+			if i > 1 {
+				query += " AND "
+			}
+			query += fmt.Sprintf("%s = $%d", key, i)
+			fmt.Println(key)
+			args = append(args, v)
+			i++
+		}
+	}
 
-    // Apply pagination
-    query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, (pageNum-1)*pageSize)
+	// Apply sorting
+	if sortBy != "" {
+		query += fmt.Sprintf(" ORDER BY %s", sortBy)
+	}
 
-    // Execute the query
-    rows, err := r.db.Query(query, filters)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	// Apply pagination
+	query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, (pageNum-1)*pageSize)
 
-    var players []models.Player
-    for rows.Next() {
-        var player models.Player
-        err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
-        if err != nil {
-            return nil, err
-        }
-        players = append(players, player)
-    }
-    if err := rows.Err(); err != nil {
-        return nil, err
-    }
-    return players, nil
+	// Execute the query
+	fmt.Println("Executing query:", query)
+	fmt.Println("Query arguments:", args)
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		players = append(players, player)
+	}
+
+	fmt.Println("Total players retrieved:", len(players))
+	return players, nil
 }
 
 func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
@@ -89,7 +97,6 @@ func (r *PlayerRepo) GetPlayerByID(id int) (*models.Player, error) {
 	}
 	return &player, nil
 }
-
 
 func (r *PlayerRepo) CreatePlayer(player *models.Player) error {
 	fmt.Println("Debugging: Inserting Player into database")
