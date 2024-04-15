@@ -2,58 +2,87 @@ package main
 
 import (
 	"database/sql"
-	"log"
-	"net/http"
-	"strconv"
 	_ "encoding/json"
-
+	"fmt"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
-	"github.com/rustem24liu/Golang-Final-Project/internal/repository"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 func main() {
 	router := mux.NewRouter()
 
-	db, err := sql.Open("postgres", "postgres://postgres:0510@localhost/football_team?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	playerRepo := repository.NewPlayerRepo(db)
 	playerHandler := handlers.NewPlayerHandler(db)
+	teamHandler := handlers.NewTeamHandler(db)
 
-	router.HandleFunc("/players", func(w http.ResponseWriter, r *http.Request) {
-		pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
-		pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
-		sortBy := r.URL.Query().Get("sort")
-		positionFilter := r.URL.Query().Get("position") // Example filtering parameter
+	//playerRepo := repository.NewPlayerRepo(db)
+	//playerHandler := handlers.NewPlayerHandler(db)
 
-		filters := make(map[string]interface{})
-		if positionFilter != "" {
-			filters["player_pos"] = positionFilter
-		}
-
-		players, err := playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		// Encode response
-		json.NewEncoder(w).Encode(players)
-	}
-	).Methods("GET")
+	//router.HandleFunc("/players", func(w http.ResponseWriter, r *http.Request) {
+	//	pageNum, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	//	pageSize, _ := strconv.Atoi(r.URL.Query().Get("size"))
+	//	sortBy := r.URL.Query().Get("sort")
+	//	positionFilter := r.URL.Query().Get("position") // Example filtering parameter
+	//
+	//	filters := make(map[string]interface{})
+	//	if positionFilter != "" {
+	//		filters["player_pos"] = positionFilter
+	//	}
+	//
+	//	players, err := playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
+	//	if err != nil {
+	//		http.Error(w, err.Error(), http.StatusInternalServerError)
+	//		fmt.Println("some error main")
+	//		return
+	//	}
+	//	// Encode response
+	//	json.NewEncoder(w).Encode(players)
+	//},
+	//).Methods("GET")
 
 	//router.HandleFunc('/')
+
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
+	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
 	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
 	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
 	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
 	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 	router.HandleFunc("/tournament", handlers.TournamentHandler).Methods("GET")
+	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
 	// Start HTTP server
 	log.Println("Server is running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func GetAllPlayers(w http.ResponseWriter, r *http.Request) {
+	// Extract query parameters from the URL
+	queryParams := r.URL.Query()
+
+	// Parse pageNum
+	pageNum, _ := strconv.Atoi(queryParams.Get("page"))
+
+	// Parse pageSize
+	pageSize, _ := strconv.Atoi(queryParams.Get("size"))
+
+	// Parse sortBy
+	sortBy := queryParams.Get("sort")
+
+	// Parse filters
+	positionFilter := queryParams.Get("player_pos")
+
+	// Now you have pageNum, pageSize, sortBy, and positionFilter
+	// You can pass these values to your handler function or use them as needed
+	// For example, you can call your handler function with these parameters:
+	// YourHandlerFunction(w, r, pageNum, pageSize, sortBy, positionFilter)
+	fmt.Fprintf(w, "pageNum: %d, pageSize: %d, sortBy: %s, positionFilter: %s", pageNum, pageSize, sortBy, positionFilter)
 }
