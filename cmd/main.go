@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	_ "encoding/json"
 	"log"
 	"net/http"
 	"strconv"
-	_ "encoding/json"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -16,7 +17,7 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	db, err := sql.Open("postgres", "postgres://postgres:0510@localhost/football_team?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:1000tenge@localhost/football_team?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +44,7 @@ func main() {
 		}
 		// Encode response
 		json.NewEncoder(w).Encode(players)
-	}
+	},
 	).Methods("GET")
 
 	//router.HandleFunc('/')

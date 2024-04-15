@@ -15,7 +15,7 @@ func TournamentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("tournament.html")
+	tmpl, err := template.ParseFiles("cmd/tournament.html")
 	if err != nil {
 		http.Error(w, "Failed to load HTML template", http.StatusInternalServerError)
 		return
