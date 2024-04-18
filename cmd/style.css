@@ -6,6 +6,14 @@
     box-sizing: border-box;
     font-family: "Roboto", sans-serif;
 }
+/* Add styles for the header */
+.header {
+    text-align: center;
+    color: #fff; /* White color */
+    font-size: 36px; /* Adjust size as needed */
+    margin-bottom: 20px; /* Add margin below the header */
+}
+
 body {
     position: relative;
     display: flex;
