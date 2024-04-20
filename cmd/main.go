@@ -126,6 +126,11 @@ func main() {
 	router.HandleFunc("/login", loginHandler).Methods("POST")
 	router.HandleFunc("/register", registerHandler).Methods("POST")
 
+	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "404 page not found")
+	})
+
 	// Protected endpoint
 	router.Handle("/protected", authenticate(http.HandlerFunc(protectedHandler))).Methods("GET")
 	db, err := sql.Open("postgres", "postgres://postgres:1000tenge@localhost/football_team?sslmode=disable")
