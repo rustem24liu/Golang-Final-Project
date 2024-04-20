@@ -78,43 +78,53 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
-	err := json.NewDecoder(r.Body).Decode(&creds)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+    var creds Credentials
+    err := json.NewDecoder(r.Body).Decode(&creds)
+    if err != nil {
+        http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+        return
+    }
 
-	var foundUser *User
-	for _, user := range users {
-		if user.Username == creds.Username && user.Password == creds.Password {
-			foundUser = &user
-			break
-		}
-	}
+    // Query the database to find the user with the provided username
+    var storedPassword string
+    err = db.QueryRow("SELECT password FROM users WHERE username = $1", creds.Username).Scan(&storedPassword)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+            return
+        }
+        http.Error(w, "Database error", http.StatusInternalServerError)
+        return
+    }
 
-	if foundUser == nil || !foundUser.Activated {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+    // Compare the provided password with the stored password
+    if storedPassword != creds.Password {
+        http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+        return
+    }
 
-	expirationTime := time.Now().Add(5 * time.Minute)
-	claims := &JWTClaims{
-		Username: foundUser.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
+    // Generate JWT token
+    expirationTime := time.Now().Add(5 * time.Minute)
+    claims := &JWTClaims{
+        Username: creds.Username,
+        StandardClaims: jwt.StandardClaims{
+            ExpiresAt: expirationTime.Unix(),
+        },
+    }
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString(jwtKey)
+    if err != nil {
+        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        return
+    }
 
-	w.Header().Set("Authorization", tokenString)
+    // Set token in response header
+    w.Header().Set("Authorization", "Bearer "+tokenString)
+    w.WriteHeader(http.StatusOK)
 }
+
+
 
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
