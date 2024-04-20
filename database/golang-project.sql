@@ -24,6 +24,14 @@ CREATE TABLE Player (
     team_id INTEGER,
     FOREIGN KEY (team_id) REFERENCES Teams(team_id)
 );
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    activated BOOLEAN NOT NULL,
+    permissions TEXT[]
+);
+
 
 INSERT INTO Teams (team_name)
 VALUES

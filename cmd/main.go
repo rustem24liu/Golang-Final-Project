@@ -11,7 +11,13 @@ import (
 	"net/http"
 	"strconv"
 )
-
+const (
+	host     = "localhost"
+	port     = 5433
+	user     = "postgres"
+	password = "0510"
+	dbname   = "football_team"
+)
 func main() {
 
 	router := mux.NewRouter()
@@ -25,12 +31,18 @@ func main() {
 	//
 	//// Protected endpoint
 	//router.Handle("/protected", authenticate(http.HandlerFunc(protectedHandler))).Methods("GET")
+	
+	
 
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/football_team?sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+    db, err := sql.Open("postgres", psqlInfo)
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
+	// Connect to the PostgreSQL database
+
+
 
 	playerHandler := handlers.NewPlayerHandler(db)
 	teamHandler := handlers.NewTeamHandler(db)
@@ -59,7 +71,10 @@ func main() {
 	//	json.NewEncoder(w).Encode(players)
 	//},
 	//).Methods("GET")
-
+	handlers.SetDB(db)
+	router.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
+	router.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
+	router.Handle("/protected", handlers.Authenticate(http.HandlerFunc(handlers.ProtectedHandler))).Methods("GET")
 	//router.HandleFunc('/')
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
 	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
