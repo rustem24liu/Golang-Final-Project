@@ -168,9 +168,9 @@ func main() {
 	//).Methods("GET")
 
 	//router.HandleFunc('/')
-
 	router.HandleFunc("/", handlers.HomeHandler).Methods("GET")
 	router.HandleFunc("/players", playerHandler.GetAllPlayers).Methods("GET")
+	router.HandleFunc("/players/list", playerHandler.ListOfAllPlayers).Methods("GET")
 	router.HandleFunc("/players/{id}", playerHandler.GetPlayerByID).Methods("GET")
 	router.HandleFunc("/players", playerHandler.CreatePlayer).Methods("POST")
 	router.HandleFunc("/players/{id}", playerHandler.UpdatePlayer).Methods("PUT")
@@ -178,8 +178,9 @@ func main() {
 	router.HandleFunc("/tournament", handlers.TournamentHandler).Methods("GET")
 	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
 	// Start HTTP server
-	log.Println("Server is running on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	port := 8080
+	fmt.Printf("http://localhost:8080")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router))
 }
 
 func GetAllPlayers(w http.ResponseWriter, r *http.Request) {

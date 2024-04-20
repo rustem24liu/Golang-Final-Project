@@ -18,6 +18,28 @@ func NewPlayerRepo(db *sql.DB) *PlayerRepo {
 	return &PlayerRepo{db}
 }
 
+func (r *PlayerRepo) ListOfAllPlayers() ([]models.Player, error) {
+	rows, err := r.db.Query("SELECT * FROM Player")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []models.Player
+	for rows.Next() {
+		var player models.Player
+		err := rows.Scan(&player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position, &player.TeamID)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return players, nil
+}
+
 func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Player, error) {
 	// Build SQL query based on sorting, filtering, and pagination parameters
 	query := "SELECT * FROM Player"
