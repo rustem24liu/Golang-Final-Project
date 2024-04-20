@@ -40,6 +40,21 @@ var users = []User{
 	{ID: 2, Username: "user2", Password: "password2"},
 }
 
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	var newUser User
+	err := json.NewDecoder(r.Body).Decode(&newUser)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// You might want to add some validation checks here before adding the user to the database.
+
+	users = append(users, newUser)
+
+	w.WriteHeader(http.StatusCreated)
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -109,6 +124,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/login", loginHandler).Methods("POST")
+	router.HandleFunc("/register", registerHandler).Methods("POST")
 
 	// Protected endpoint
 	router.Handle("/protected", authenticate(http.HandlerFunc(protectedHandler))).Methods("GET")
