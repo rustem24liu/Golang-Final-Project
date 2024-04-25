@@ -4,20 +4,28 @@ import (
 	"database/sql"
 	_ "encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
-	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+	"github.com/rustem24liu/Golang-Final-Project/internal/handlers"
 )
+
 const (
 	host     = "localhost"
-	port     = 5433
+	port     = 5432
 	user     = "postgres"
-	password = "0510"
-	dbname   = "football_team"
+	password = "ayan2004"
+	dbname   = "football_teams"
 )
+
+func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	// Serve the 404 HTML file
+	http.ServeFile(w, r, "404/404.html") // Update with the actual path to your 404 HTML file
+}
+
 func main() {
 
 	router := mux.NewRouter()
@@ -31,18 +39,14 @@ func main() {
 	//
 	//// Protected endpoint
 	//router.Handle("/protected", authenticate(http.HandlerFunc(protectedHandler))).Methods("GET")
-	
-	
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    db, err := sql.Open("postgres", psqlInfo)
-    if err != nil {
-        panic(err)
-    }
-    defer db.Close()
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 	// Connect to the PostgreSQL database
-
-
 
 	playerHandler := handlers.NewPlayerHandler(db)
 	teamHandler := handlers.NewTeamHandler(db)
@@ -85,6 +89,9 @@ func main() {
 	router.HandleFunc("/players/{id}", playerHandler.DeletePlayer).Methods("DELETE")
 	router.HandleFunc("/tournament", handlers.TournamentHandler).Methods("GET")
 	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
+	router.HandleFunc("/developers", handlers.DevelopersHandler).Methods("GET")
+	router.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
+
 	// Start HTTP server
 	port := 8080
 	fmt.Printf("http://localhost:8080")

@@ -7,6 +7,87 @@
     <title>Developers</title>
 </head>
 <body>
+
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container Styles */
+.developers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.developer {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.developer:hover {
+    background-color: #f5f5f5;
+}
+
+.developer-details-container {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.pagination-container button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Developer Details Styles */
+#developer-name {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.developer-images-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.developer-images-container img {
+    width: 150px;
+    height: 150px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+    </style>
     <div class="developers-container"></div>
 
     <div class="developer-details-container" style="display: none;">
@@ -15,6 +96,129 @@
         <div class="pagination-container"></div>
     </div>
 
-    <script src="developers-script.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() {
+        const developers = [
+            { name: "Suleimenov Ayan", role: "Team Leader" },
+            { name: "Bagytzhan Zhalgas" },
+            { name: "Tolegen Nursultan" },
+            { name: "Rustem" },
+            { name: "Liu Rustem" }
+        ];
+    
+        const developerContainer = document.querySelector('.developers-container');
+        const developerDetailsContainer = document.querySelector('.developer-details-container');
+    
+        // Define paths to your local images
+        const defaultImages = [
+        '/static/profiles/profile1.jpg',
+        '/static/profiles/profile2.jpg',
+        '/static/profiles/profile3.jpg',
+        '/static/profiles/profile4.jpg',
+        '/static/profiles/profile5.jpg',
+        '/static/profiles/profile6.jpg',
+        '/static/profiles/profile7.jpg',
+        '/static/profiles/profile8.jpg',
+        '/static/profiles/profile9.jpg',
+        '/static/profiles/profile10.jpg',
+        '/static/profiles/profile11.jpg',
+        '/static/profiles/profile12.jpg',
+
+        ];
+    
+        const rustemImages = [
+            'assets/rus1.jpg',
+            'assets/rus2.jpg',
+            'assets/rus3.jpg',
+            // Add more paths as needed
+        ];
+        const ayanImages = [
+            'assets/ayan1.jpg',
+            'assets/ayan2.jpg',
+            'assets/ayan3.jpg',
+        ];
+        const zhalgasImages = [
+            'assets/zhalgas1.jpg',
+            'assets/zhalgas2.jpg',
+            'assets/zhalgas3.jpg',
+        ];
+        const nursultanImages = [
+            'assets/nurs1.jpg',
+            'assets/nurs3.jpg',
+        ]
+    
+        // Populate developers list
+        developers.forEach((developer, index) => {
+            const developerElement = document.createElement('div');
+            developerElement.classList.add('developer');
+            developerElement.textContent = developer.name;
+            developerElement.addEventListener('click', () => showDeveloperDetails(developer, index));
+            developerContainer.appendChild(developerElement);
+        });
+    
+        // Function to show developer details
+        function showDeveloperDetails(developer, index) {
+            const developerNameElement = document.getElementById('developer-name');
+            const developerImagesContainer = document.querySelector('.developer-images-container');
+            const paginationContainer = document.querySelector('.pagination-container');
+    
+            developerNameElement.textContent = `${developer.name} - ${developer.role || 'Developer'}`;
+            developerImagesContainer.innerHTML = ''; // Clear previous images
+    
+            let images;
+            if (developer.name === 'Liu Rustem') {
+                images = rustemImages;
+            }
+            if (developer.name === 'Suleimenov Ayan'){
+                images = ayanImages;
+            }
+            if (developer.name === 'Bagytzhan Zhalgas'){
+                images = zhalgasImages;
+            }
+            if (developer.name === 'Tolegen Nursultan'){
+                images = nursultanImages;
+            }
+            else {
+                images = defaultImages;
+            }
+    
+            // Calculate pagination indices
+            const pageSize = 3;
+            const startIndex = index * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, images.length);
+    
+            // Display images for the current developer with pagination
+            for (let i = startIndex; i < endIndex; i++) {
+                const imageElement = document.createElement('img');
+                imageElement.src = images[i];
+                developerImagesContainer.appendChild(imageElement);
+            }
+    
+            // Pagination
+            paginationContainer.innerHTML = '';
+            if (startIndex > 0) {
+                const prevButton = createPaginationButton('Prev');
+                prevButton.addEventListener('click', () => showDeveloperDetails(developer, index - 1));
+                paginationContainer.appendChild(prevButton);
+            }
+            if (endIndex < images.length) {
+                const nextButton = createPaginationButton('Next');
+                nextButton.addEventListener('click', () => showDeveloperDetails(developer, index + 1));
+                paginationContainer.appendChild(nextButton);
+            }
+    
+            // Show developer details container
+            developerDetailsContainer.style.display = 'block';
+        }
+    
+        // Function to create pagination button
+        function createPaginationButton(text) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            return button;
+        }
+    });
+    
+    </script>
+
 </body>
 </html>
