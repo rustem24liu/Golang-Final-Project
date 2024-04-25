@@ -15,10 +15,10 @@ import (
 
 const (
 	host     = "localhost"
-	port     = 5432
+	port     = 5433
 	user     = "postgres"
-	password = "ayan2004"
-	dbname   = "football_teams"
+	password = "0510"
+	dbname   = "football_team"
 )
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {

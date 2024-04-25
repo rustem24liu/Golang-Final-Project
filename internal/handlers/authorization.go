@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"database/sql"
-	"fmt"
-	"encoding/json"
-	"net/http"
-	"time"
-	"strings"
+    "database/sql"
+    "fmt"
+    "encoding/json"
+    "net/http"
+    "time"
+    "strings"
 
-	"github.com/dgrijalva/jwt-go"
+    "github.com/dgrijalva/jwt-go"
 )
 var db *sql.DB
 
@@ -20,26 +20,26 @@ func SetDB(database *sql.DB) {
 var jwtKey = []byte("secret_key")
 
 type User struct {
-	ID           int    `json:"id"`
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	Activated    bool   `json:"activated"`
-	Permissions  []string `json:"permissions"`
+    ID           int    `json:"id"`
+    Username     string `json:"username"`
+    Password     string `json:"password"`
+    Activated    bool   `json:"activated"`
+    Permissions  []string `json:"permissions"`
 }
 
 type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+    Username string `json:"username"`
+    Password string `json:"password"`
 }
 
 type JWTClaims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
+    Username string `json:"username"`
+    jwt.StandardClaims
 }
 
 var users = []User{
-	{ID: 1, Username: "user1", Password: "password1", Activated: true, Permissions: []string{"read"}},
-	{ID: 2, Username: "user2", Password: "password2", Activated: false, Permissions: []string{"read"}},
+    {ID: 1, Username: "user1", Password: "password1", Activated: true, Permissions: []string{"read"}},
+    {ID: 2, Username: "user2", Password: "password2", Activated: false, Permissions: []string{"read"}},
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,53 +124,97 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 }
 
-
-
-func Authenticate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		tokenString := authHeader[len("Bearer "):]
-		claims := &JWTClaims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
-
-		if err != nil || !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		// Add permission-based authorization logic here
-		if !checkPermissions(claims.Username, r.URL.Path) {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func checkPermissions(username string, path string) bool {
-	// Placeholder logic for checking user permissions based on username and path
-	for _, user := range users {
-		if user.Username == username {
-			for _, permission := range user.Permissions {
-				if permission == "admin" && path == "/admin" {
-					return true
-				} else if permission == "read" && path == "/data" {
-					return true
-				}
-			}
-		}
-	}
-	return false
+    // Placeholder logic for checking user permissions based on username and path
+    for _, user := range users {
+        if user.Username == username {
+            for _, permission := range user.Permissions {
+                if permission == "admin" && path == "/admin" {
+                    return true
+                } else if permission == "read" && path == "/data" {
+                    return true
+                }
+            }
+        }
+    }
+    return false
 }
 
 func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Welcome to the protected area!"))
+    var tokenData map[string]string
+    err := json.NewDecoder(r.Body).Decode(&tokenData)
+    if err != nil {
+        http.Error(w, "Failed to parse token data from request body", http.StatusBadRequest)
+        return
+    }
+
+    // Retrieve the token from the parsed data
+    token, ok := tokenData["token"]
+    if !ok {
+        http.Error(w, "Token not found in request body", http.StatusBadRequest)
+        return
+    }
+
+    // Validate and parse the JWT token
+    claims := &JWTClaims{}
+    jwtToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+        return jwtKey, nil
+    })
+    if err != nil {
+        http.Error(w, "Failed to parse JWT token", http.StatusUnauthorized)
+        return
+    }
+    if !jwtToken.Valid {
+        http.Error(w, "Invalid JWT token", http.StatusUnauthorized)
+        return
+    }
+
+    // Handle the request for the protected endpoint
+    // Example: Return a success message
+    w.Write([]byte("Welcome to the protected area!"))
 }
+
+func Authenticate(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Skip authentication for certain endpoints (e.g., login, register)
+        if r.URL.Path == "/login" || r.URL.Path == "/register" {
+            next.ServeHTTP(w, r)
+            return
+        }
+
+        // Extract token data from request body
+        var tokenData map[string]string
+        err := json.NewDecoder(r.Body).Decode(&tokenData)
+        if err != nil {
+            http.Error(w, "Failed to parse token data from request body", http.StatusBadRequest)
+            return
+        }
+
+        // Retrieve the token from the parsed data
+        token, ok := tokenData["token"]
+        if !ok {
+            http.Error(w, "Token not found in request body", http.StatusBadRequest)
+            return
+        }
+
+        // Validate and parse the JWT token
+        claims := &JWTClaims{}
+        jwtToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+            return jwtKey, nil
+        })
+        if err != nil || !jwtToken.Valid {
+            http.Error(w, "Invalid JWT token", http.StatusUnauthorized)
+            return
+        }
+
+        // Add permission-based authorization logic here if needed
+        if !checkPermissions(claims.Username, r.URL.Path) {
+            http.Error(w, "Insufficient permissions", http.StatusForbidden)
+            return
+        }
+
+        // Call the next handler if authentication and authorization are successful
+        next.ServeHTTP(w, r)
+    })
+}
+
