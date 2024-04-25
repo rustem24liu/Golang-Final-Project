@@ -29,10 +29,10 @@ type TournamentResult struct {
 
 const (
 	host     = "localhost"
-	port     = 5433
+	port     = 5432
 	user     = "postgres"
-	password = "0510"
-	dbname   = "football_team"
+	password = "ayan2004"
+	dbname   = "football_teams"
 )
 
 func RunTournament() (TournamentResult, error) {

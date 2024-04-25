@@ -4,9 +4,49 @@
     <title>Tournament Results</title>
     <style>
         body {
-            background: linear-gradient(to right, #bbbbbb, #a79a9a, #867781, #66585f);
+            background: linear-gradient(to right, #00BF8F, #001510);
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #fff;
+        }
+        th {
+            background-color: #00BF8F;
+            color: #fff;
+        }
+        td {
+            background-color: #001510;
+        }
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        ul li {
+            padding: 5px 0;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Tournament Results</h1>
@@ -28,7 +68,6 @@
             </td>
             <td>
                 <ul>
-                    
                     {{ range $drawMatch := $round.Drawers }}
                     <li>{{ $drawMatch.Team1 }} vs {{ $drawMatch.Team2 }}: {{ $drawMatch.Score1 }} - {{ $drawMatch.Score2 }}</li>
                     {{ end }}
