@@ -15,10 +15,10 @@ import (
 
 const (
 	host     = "localhost"
-	port     = 5433
+	port     = 5432
 	user     = "postgres"
-	password = "0510"
-	dbname   = "football_team"
+	password = "ayan2004"
+	dbname   = "football_teams"
 )
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +91,9 @@ func main() {
 	router.HandleFunc("/teams", teamHandler.GetAllTeams).Methods("GET")
 	router.HandleFunc("/developers", handlers.DevelopersHandler).Methods("GET")
 	router.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
+	router.HandleFunc("/players/list", func(w http.ResponseWriter, r *http.Request) {
+		handlers.ListPlayersHandler(w, r, db)
+	})
 
 	// Start HTTP server
 	port := 8080

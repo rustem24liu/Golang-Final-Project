@@ -150,6 +150,9 @@ func (ph *PlayerHandler) DeletePlayer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to delete player", http.StatusInternalServerError)
 		return
 	}
+
+	http.Redirect(w, r, "/list_of_players/list_of_players.html", http.StatusSeeOther)
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Player deleted successfully"))
 
