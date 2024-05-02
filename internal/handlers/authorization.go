@@ -26,6 +26,11 @@ type User struct {
     Activated    bool   `json:"activated"`
     Permissions  []string `json:"permissions"`
 }
+var DefaultPermissions = []string{"read"}
+
+type ActivationToken struct {
+    Token string `json:"token"`
+}
 
 type Credentials struct {
     Username string `json:"username"`
@@ -42,13 +47,16 @@ var users = []User{
     {ID: 2, Username: "user2", Password: "password2", Activated: false, Permissions: []string{"read"}},
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func RegisterHandler(w http.ResponseWriter , r *http.Request) {
     var newUser User
     err := json.NewDecoder(r.Body).Decode(&newUser)
     if err != nil {
         http.Error(w, "Failed to decode request body", http.StatusBadRequest)
         return
     }
+
+    // Add default permission to the new user
+    newUser.Permissions = DefaultPermissions
 
     // Check if the username is already taken
     var count int
@@ -217,4 +225,30 @@ func Authenticate(next http.Handler) http.Handler {
         next.ServeHTTP(w, r)
     })
 }
+func ActivateUserHandler(w http.ResponseWriter, r *http.Request) {
+    // Extract username from request body
+    var requestData map[string]string
+    err := json.NewDecoder(r.Body).Decode(&requestData)
+    if err != nil {
+        http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+        return
+    }
 
+    // Retrieve username from request data
+    username, ok := requestData["username"]
+    if !ok {
+        http.Error(w, "Username not found in request body", http.StatusBadRequest)
+        return
+    }
+
+    // Update the user's activated status in the database
+    _, err = db.Exec("UPDATE users SET activated = true WHERE username = $1", username)
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Failed to activate user: %v", err), http.StatusInternalServerError)
+        return
+    }
+
+    // Respond with success message
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("User activated successfully"))
+}

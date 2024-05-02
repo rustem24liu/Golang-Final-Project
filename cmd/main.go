@@ -15,10 +15,10 @@ import (
 
 const (
 	host     = "localhost"
-	port     = 5432
+	port     = 5433
 	user     = "postgres"
-	password = "ayan2004"
-	dbname   = "football_teams"
+	password = "0510"
+	dbname   = "football_team"
 )
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +76,7 @@ func main() {
 	//},
 	//).Methods("GET")
 	handlers.SetDB(db)
+	router.HandleFunc("/activate", handlers.ActivateUserHandler).Methods("POST")
 	router.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
 	router.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 	router.Handle("/protected", handlers.Authenticate(http.HandlerFunc(handlers.ProtectedHandler))).Methods("GET")
