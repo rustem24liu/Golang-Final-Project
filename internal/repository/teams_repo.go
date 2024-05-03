@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/rustem24liu/Golang-Final-Project/models"
@@ -10,8 +11,18 @@ type TeamRepo struct {
 	db *sql.DB
 }
 
+// NewTeamRepo creates a new TeamRepo instance.
 func NewTeamRepo(db *sql.DB) *TeamRepo {
 	return &TeamRepo{db}
+}
+
+// CreateTeam inserts a new team into the database.
+func (r *TeamRepo) CreateTeam(ctx context.Context, team *models.Team) error { // Use models.Team type
+	_, err := r.db.ExecContext(ctx, "INSERT INTO Teams (team_name) VALUES ($1)", team.TeamName)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *TeamRepo) GetAllTeams() ([]models.Team, error) {
@@ -55,7 +66,6 @@ func (r *TeamRepo) GetAllTeams() ([]models.Team, error) {
 		}
 
 		updatedTeam := teamsMap[teamID]
-		updatedTeam.Players = append(updatedTeam.Players, player)
 
 		teamsMap[teamID] = updatedTeam
 	}

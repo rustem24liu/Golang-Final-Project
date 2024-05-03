@@ -43,8 +43,7 @@ func (r *PlayerRepo) ListOfAllPlayers() ([]models.Player, error) {
 func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Player, error) {
 	// Build SQL query based on sorting, filtering, and pagination parameters
 	query := "SELECT * FROM Player"
-
-	// Initialize slice to hold values for SQL query parameters
+	fmt.Printf("Query is the", query)
 	var args []interface{}
 
 	// Apply filtering if filters are provided

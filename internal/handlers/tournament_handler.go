@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -12,6 +13,7 @@ func TournamentHandler(w http.ResponseWriter, r *http.Request) {
 	result, err := tournament.RunTournament()
 	if err != nil {
 		http.Error(w, "Failed to generate tournament results", http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 
