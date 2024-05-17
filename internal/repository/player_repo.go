@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/rustem24liu/Golang-Final-Project/models"
-	_ "github.com/rustem24liu/Golang-Final-Project/models"
 )
 
 type PlayerRepo struct {
@@ -41,9 +40,19 @@ func (r *PlayerRepo) ListOfAllPlayers() ([]models.Player, error) {
 }
 
 func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Player, error) {
+	// Set default values if they are not provided
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	if sortBy == "" {
+		sortBy = "player_id" // Default sort by ID
+	}
+
 	// Build SQL query based on sorting, filtering, and pagination parameters
 	query := "SELECT * FROM Player"
-	fmt.Printf("Query is the", query)
 	var args []interface{}
 
 	// Apply filtering if filters are provided
@@ -51,30 +60,22 @@ func (r *PlayerRepo) GetAllPlayers(pageNum, pageSize int, sortBy string, filters
 		query += " WHERE "
 		i := 1
 		for key, value := range filters {
-			// Type assertion to get the underlying value
 			v, ok := value.(string)
 			if !ok {
-				// Handle the error if the assertion fails
-				// For example, log an error or return an error response
 				fmt.Printf("Error: Filter value for key %s is not a string\n", key)
 				continue
 			}
-			// Use the value (v) as needed
-			fmt.Printf("Applying filter: Key: %s, Value: %s\n", key, v)
 			if i > 1 {
 				query += " AND "
 			}
 			query += fmt.Sprintf("%s = $%d", key, i)
-			fmt.Println(key)
 			args = append(args, v)
 			i++
 		}
 	}
 
 	// Apply sorting
-	if sortBy != "" {
-		query += fmt.Sprintf(" ORDER BY %s", sortBy)
-	}
+	query += fmt.Sprintf(" ORDER BY %s", sortBy)
 
 	// Apply pagination
 	query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, (pageNum-1)*pageSize)
@@ -123,7 +124,7 @@ func (r *PlayerRepo) CreatePlayer(player *models.Player) error {
 	fmt.Println("Debugging: Inserting Player into database")
 	fmt.Printf("Debugging: Player data - %+v\n", player)
 
-	_, err := r.db.Exec("INSERT INTO Player (player_id, first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6, $7)", player.ID, player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
+	_, err := r.db.Exec("INSERT INTO Player (first_name, last_name, player_age, player_cost, player_pos, team_id) VALUES ($1, $2, $3, $4, $5, $6)", player.FirstName, player.LastName, player.Age, player.Cost, player.Position, player.TeamID)
 	if err != nil {
 		fmt.Println("Error inserting player into database:", err)
 		return err

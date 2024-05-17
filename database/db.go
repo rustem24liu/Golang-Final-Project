@@ -14,7 +14,7 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "football_team"
+	dbname   = "football_system"
 )
 
 func GetTeamNames() ([]string, error) {

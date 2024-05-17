@@ -62,7 +62,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the username is already taken
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM customer WHERE username = $1", newUser.Username).Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", newUser.Username).Scan(&count)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Database error: %v", err), http.StatusInternalServerError)
 		return
@@ -76,7 +76,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	permissionsStr := "{" + strings.Join(newUser.Permissions, ",") + "}"
 
 	// Insert the new user into the database
-	_, err = db.Exec("INSERT INTO customer (username, password, activated, permissions) VALUES ($1, $2, $3, $4)",
+	_, err = db.Exec("INSERT INTO users (username, password, activated, permissions) VALUES ($1, $2, $3, $4)",
 		newUser.Username, newUser.Password, newUser.Activated, permissionsStr)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Database error: %v", err), http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Query the database to find the user with the provided username
 	var storedPassword string
-	err = db.QueryRow("SELECT password FROM customer WHERE username = $1", creds.Username).Scan(&storedPassword)
+	err = db.QueryRow("SELECT password FROM users WHERE username = $1", creds.Username).Scan(&storedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
@@ -243,7 +243,7 @@ func ActivateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the user's activated status in the database
-	_, err = db.Exec("UPDATE customer SET activated = true WHERE username = $1", username)
+	_, err = db.Exec("UPDATE users SET activated = true WHERE username = $1", username)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to activate user: %v", err), http.StatusInternalServerError)
 		return

@@ -1,0 +1,1 @@
+alter table league add league_country varchar(250);

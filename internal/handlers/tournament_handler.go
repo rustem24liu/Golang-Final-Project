@@ -9,7 +9,6 @@ import (
 )
 
 func TournamentHandler(w http.ResponseWriter, r *http.Request) {
-	// Run the tournament
 	result, err := tournament.RunTournament()
 	if err != nil {
 		http.Error(w, "Failed to generate tournament results", http.StatusInternalServerError)

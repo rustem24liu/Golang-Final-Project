@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/rustem24liu/Golang-Final-Project/models"
 )
@@ -16,66 +17,143 @@ func NewTeamRepo(db *sql.DB) *TeamRepo {
 	return &TeamRepo{db}
 }
 
-// CreateTeam inserts a new team into the database.
-func (r *TeamRepo) CreateTeam(ctx context.Context, team *models.Team) error { // Use models.Team type
-	_, err := r.db.ExecContext(ctx, "INSERT INTO Teams (team_name) VALUES ($1)", team.TeamName)
+func (r *TeamRepo) ListOfAllTeams() ([]models.Team, error) {
+	rows, err := r.db.Query("SELECT * FROM Teams")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var teams []models.Team
+	for rows.Next() {
+		var team models.Team
+		err := rows.Scan(&team.ID, &team.TeamName, &team.LeagueID)
+		if err != nil {
+			return nil, err
+		}
+		teams = append(teams, team)
+	}
+	if err := rows.Err(); err != nil {
+		panic(err)
+	}
+	return teams, nil
+}
+
+func (r *TeamRepo) GetAllTeams(pageNum, pageSize int, sortBy string, filters map[string]interface{}) ([]models.Team, error) {
+
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	if sortBy == "" {
+		sortBy = "team_id" // Default sort by ID
+	}
+
+	// Build SQL query based on sorting, filtering, and pagination parameters
+	query := "SELECT * FROM Teams"
+	fmt.Println("Query:", query)
+	var args []interface{}
+
+	// Apply filtering if filters are provided
+	if len(filters) > 0 {
+		query += " WHERE "
+		i := 1
+		for key, value := range filters {
+			// Type assertion to get the underlying value
+			v, ok := value.(string)
+			if !ok {
+				// Handle the error if the assertion fails
+				// For example, log an error or return an error response
+				fmt.Printf("Error: Filter value for key %s is not a string\n", key)
+				continue
+			}
+			// Use the value (v) as needed
+			fmt.Printf("Applying filter: Key: %s, Value: %s\n", key, v)
+			if i > 1 {
+				query += " AND "
+			}
+			query += fmt.Sprintf("%s = $%d", key, i)
+			args = append(args, v)
+			i++
+		}
+	}
+
+	// Apply sorting
+	if sortBy != "" {
+		query += fmt.Sprintf(" ORDER BY %s", sortBy)
+	}
+
+	// Apply pagination
+	query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, (pageNum-1)*pageSize)
+
+	// Execute the query
+	fmt.Println("Executing query:", query)
+	fmt.Println("Query arguments:", args)
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var teams []models.Team
+	for rows.Next() {
+		var team models.Team
+		err := rows.Scan(&team.ID, &team.TeamName, &team.LeagueID)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		teams = append(teams, team)
+	}
+
+	fmt.Println("Total teams retrieved:", len(teams))
+	return teams, nil
+}
+
+func (r *TeamRepo) GetTeamByID(id int) (*models.Team, error) {
+	var team models.Team
+
+	err := r.db.QueryRow("SELECT * FROM Teams WHERE team_id = $1", id).
+		Scan(&team.ID, &team.TeamName, &team.LeagueID)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("team not found")
+		}
+		return nil, err
+	}
+	return &team, nil
+}
+
+func (r *TeamRepo) CreateTeam(team *models.Team) error {
+	fmt.Println("Debugging: Inserting Player into database")
+	fmt.Printf("Debugging: Player data - %+v\n", team)
+
+	_, err := r.db.Exec("INSERT INTO Teams (team_name, league_id) VALUES ($1, $2)", team.TeamName, team.LeagueID)
+	if err != nil {
+		fmt.Println("Error inserting team into database:", err)
+		return err
+	}
+
+	fmt.Println("Debugging: Team inserted successfully")
+	return nil
+}
+
+func (r *TeamRepo) UpdateTeam(team *models.Team) error {
+	_, err := r.db.Exec("UPDATE Teams SET team_name = $1, league_id = $2 WHERE team_id = $3", team.TeamName, team.LeagueID, team.ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *TeamRepo) GetAllTeams() ([]models.Team, error) {
-	query := `
-        SELECT 
-            t.team_id,
-            t.team_name,
-            p.player_id,
-            p.first_name,
-            p.last_name,
-            p.player_age,
-            p.player_cost,
-            p.player_pos
-        FROM 
-            Teams t
-        LEFT JOIN 
-            Player p ON t.team_id = p.team_id
-        ORDER BY 
-            t.team_id, p.player_id
-    `
-
-	rows, err := r.db.Query(query)
+func (r *TeamRepo) DeleteTeam(id int) error {
+	_, err := r.db.Exec("DELETE FROM Teams WHERE team_id = $1", id)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	defer rows.Close()
-
-	var teamsMap = make(map[int]models.Team)
-	for rows.Next() {
-		var teamID int
-		var team models.Team
-		var player models.Player
-		err := rows.Scan(&teamID, &team.TeamName, &player.ID, &player.FirstName, &player.LastName, &player.Age, &player.Cost, &player.Position)
-		if err != nil {
-			return nil, err
-		}
-
-		if _, ok := teamsMap[teamID]; !ok {
-			team.ID = teamID
-			teamsMap[teamID] = team
-		}
-
-		updatedTeam := teamsMap[teamID]
-
-		teamsMap[teamID] = updatedTeam
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	var teams []models.Team
-	for _, team := range teamsMap {
-		teams = append(teams, team)
-	}
-	return teams, nil
+	return nil
 }

@@ -43,13 +43,11 @@ func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
 	positionFilter := r.URL.Query().Get("player_pos")
 	fmt.Println(positionFilter, "this is position filter")
 
-	// Construct filter map
 	filters := make(map[string]interface{})
 	if positionFilter != "" {
 		filters["player_pos"] = positionFilter
 	}
 
-	// Retrieve players from repository
 	players, err := ph.playerRepo.GetAllPlayers(pageNum, pageSize, sortBy, filters)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +55,6 @@ func (ph *PlayerHandler) GetAllPlayers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Encode response
 	json.NewEncoder(w).Encode(players)
 }
 
@@ -93,14 +90,12 @@ func (ph *PlayerHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Insert new player into the repository
 	err = ph.playerRepo.CreatePlayer(&player)
 	if err != nil {
 		http.Error(w, "Failed to create player", http.StatusInternalServerError)
 		return
 	}
 
-	// Write success response
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Player created successfully"))
 }
@@ -128,7 +123,6 @@ func (ph *PlayerHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Write success response
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Player updated successfully"))
 }

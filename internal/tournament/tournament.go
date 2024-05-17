@@ -3,51 +3,32 @@ package tournament
 import (
 	"database/sql"
 	"fmt"
+	"github.com/rustem24liu/Golang-Final-Project/models"
 	"math/rand"
+	"os"
 	"time"
 
 	_ "github.com/lib/pq"
+	_ "github.com/rustem24liu/Golang-Final-Project/models"
 )
 
-type Match struct {
-	Team1  string `json:"team1"`
-	Team2  string `json:"team2"`
-	Score1 int    `json:"score1"`
-	Score2 int    `json:"score2"`
-}
-
-type Round struct {
-	Number  string  `json:"round_number"`
-	Drawers []Match `json:"drawer"`
-	Matches []Match `json:"matches"`
-}
-
-type TournamentResult struct {
-	Winner string  `json:"winner"`
-	Rounds []Round `json:"rounds"`
-}
-
-const (
-	host     = "golang-final-project"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "football_team"
-)
-
-func RunTournament() (TournamentResult, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
+func RunTournament() (models.TournamentResult, error) {
+	psqlInfo := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		return TournamentResult{}, err
+		return models.TournamentResult{}, err
 	}
 	defer db.Close()
 
-	// Fetch team names from the database
 	rows, err := db.Query("SELECT team_name FROM teams")
 	if err != nil {
-		return TournamentResult{}, err
+		return models.TournamentResult{}, err
 	}
 	defer rows.Close()
 
@@ -55,13 +36,13 @@ func RunTournament() (TournamentResult, error) {
 	for rows.Next() {
 		var teamName string
 		if err := rows.Scan(&teamName); err != nil {
-			return TournamentResult{}, err
+			return models.TournamentResult{}, err
 		}
 		teams = append(teams, teamName)
 	}
 
 	if err := rows.Err(); err != nil {
-		return TournamentResult{}, err
+		return models.TournamentResult{}, err
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -69,24 +50,23 @@ func RunTournament() (TournamentResult, error) {
 		teams[i], teams[j] = teams[j], teams[i]
 	})
 
-	var tournamentResult TournamentResult
+	var tournamentResult models.TournamentResult
 	comments := []string{"Round of 8", "Quarter final", "Semi final", "Final"}
 	var winners []string
-	var drawers []Match
-	var drawersResult []Match
+	var drawers []models.Match
+	var drawersResult []models.Match
 
-	var rounds []Round
+	var rounds []models.Round
 
 	for len(teams) > 1 {
 		var nextRound []string
-		var matches []Match
+		var matches []models.Match
 
 		for i := 0; i < len(teams); i += 2 {
-			match := Match{Team1: teams[i], Team2: teams[i+1]}
+			match := models.Match{Team1: teams[i], Team2: teams[i+1]}
 			match.Score1 = rand.Intn(5)
 			match.Score2 = rand.Intn(5)
 
-			// Determine winners and next round participants
 			if match.Score1 == match.Score2 {
 				drawers = append(drawers, match)
 			} else if match.Score1 > match.Score2 {
@@ -97,7 +77,7 @@ func RunTournament() (TournamentResult, error) {
 				nextRound = append(nextRound, match.Team2)
 			}
 
-			matches = append(matches, match) // Append match to matches slice
+			matches = append(matches, match)
 		}
 		for _, drawMatch := range drawers {
 			for {
@@ -120,7 +100,7 @@ func RunTournament() (TournamentResult, error) {
 		teams = nextRound
 		drawers = nil
 
-		round := Round{
+		round := models.Round{
 			Number:  comments[len(rounds)],
 			Drawers: drawersResult,
 			Matches: matches,

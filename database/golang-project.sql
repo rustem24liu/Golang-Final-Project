@@ -1,8 +1,17 @@
 CREATE DATABASE football_team;
 
+
+CREATE TABLE League(
+    id serial primary key,
+    league_name varchar(250)
+);
+
+
 CREATE TABLE Teams (
     team_id SERIAL PRIMARY KEY,
-    team_name VARCHAR(100)
+    team_name VARCHAR(100),
+    league_id INT,
+    foreign key (league_id) references league(id)
 );
 
 CREATE TABLE Coach (
@@ -31,6 +40,15 @@ CREATE TABLE users (
     activated BOOLEAN NOT NULL,
     permissions TEXT[]
 );
+
+CREATE TABLE Stadiums (
+    id SERIAL PRIMARY KEY,
+    stadium_name VARCHAR(100),
+    capacity INT,
+    team_id INT,
+    FOREIGN KEY (team_id) REFERENCES teams(team_id)
+);
+
 
 
 INSERT INTO Teams (team_name)
